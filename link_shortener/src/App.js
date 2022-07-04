@@ -1,66 +1,73 @@
-import React from 'react'
-import './App.css'
+import React from "react";
+import "./App.css";
 
 class App extends React.Component {
-  state = { success: undefined, links: 'URL Links: ' }
+  state = {
+    success: undefined,
+    links: "URL Links: ",
+    // server: "http://localhost:8080",
+    server: "https://link-shortener-server-erik.herokuapp.com",
+  };
 
   handleChange(event) {
-    this.setState({ value: event.target.value })
+    this.setState({ value: event.target.value });
   }
 
   async handleSubmit(event) {
-    event.preventDefault()
-    let isPrivate
-    if (event.target.id === 'private') {
-      isPrivate = true
+    event.preventDefault();
+    let isPrivate;
+    if (event.target.id === "private") {
+      isPrivate = true;
     }
 
-    const url = `https://${this.state.value}`
+    const url = `https://${this.state.value}`;
+    // const server = `https://link-shortener-server-erik.herokuapp.com`;
+    // const server = `http://localhost:8080`
 
     try {
-      let response
+      let response;
       if (isPrivate) {
-        response = await this.postData('http://localhost:8080/shortlinks', {
+        response = await this.postData(this.state.server + "/shortlinks", {
           fullUrl: url,
-          isPrivate: true
-        })
+          isPrivate: true,
+        });
       } else {
-        response = await this.postData('http://localhost:8080/shortlinks', {
+        response = await this.postData(this.state.server + "/shortlinks", {
           fullUrl: url,
-          isPrivate: false
-        })
+          isPrivate: false,
+        });
       }
 
       if (response.status >= 400 && response.status < 600) {
-        throw new Error('Bad response from server')
+        throw new Error("Bad response from server");
       }
 
       if (response.status === 200) {
-        const jsonResponse = await response.json()
+        const jsonResponse = await response.json();
         this.setState({
           success: true,
-          value: '',
-          code: jsonResponse.shortcode
-        })
+          value: "",
+          code: jsonResponse.shortcode,
+        });
       } else {
-        this.setState({ success: false, error: response.error })
+        this.setState({ success: false, error: response.error });
       }
     } catch (error) {
-      this.setState({ success: false, error: error.toString() })
+      this.setState({ success: false, error: error.toString() });
     }
-    await this.getShortcodes()
+    await this.getShortcodes();
   }
 
   async postData(url, data) {
     const response = await fetch(url, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(data)
-    })
+      body: JSON.stringify(data),
+    });
 
-    return response
+    return response;
   }
 
   // shortcode() {
@@ -69,42 +76,42 @@ class App extends React.Component {
   // }
 
   async getShortcodes() {
-    const localResponse = await fetch('http://localhost:8080/urls')
-    const shortcodeList = await localResponse.json()
-    let visitResponse = await fetch('http://localhost:8080/visits')
-    let visitCountList = await visitResponse.json()
-    let visitData = JSON.stringify(visitCountList.data)
-    visitData = visitData.toString().replace('{', '').replace('}', '')
-    let linkData = JSON.stringify(shortcodeList.data)
+    const localResponse = await fetch(this.state.server + "/urls");
+    const shortcodeList = await localResponse.json();
+    let visitResponse = await fetch(this.state.server + "/visits");
+    let visitCountList = await visitResponse.json();
+    let visitData = JSON.stringify(visitCountList.data);
+    visitData = visitData.toString().replace("{", "").replace("}", "");
+    let linkData = JSON.stringify(shortcodeList.data);
     linkData = linkData
       .toString()
-      .replace('{', '')
-      .replace('}', '')
-      .replaceAll('"', '')
-      .replaceAll(':', ' = ')
-      .replaceAll('https = ', 'https:')
-      .replaceAll('http = ', 'http:')
-    const splitVisits = visitData.split(',')
-    const splitLinks = linkData.split(',')
-    let answer = 'URL Links: \n'
+      .replace("{", "")
+      .replace("}", "")
+      .replaceAll('"', "")
+      .replaceAll(":", " = ")
+      .replaceAll("https = ", "https:")
+      .replaceAll("http = ", "http:");
+    const splitVisits = visitData.split(",");
+    const splitLinks = linkData.split(",");
+    let answer = "URL Links: \n";
     for (let i = 0; i < splitLinks.length; i++) {
-      let s = ''
-      if (splitVisits[i].slice(7, splitVisits[i].length) !== '1') {
-        s = 's'
+      let s = "";
+      if (splitVisits[i].slice(7, splitVisits[i].length) !== "1") {
+        s = "s";
       }
       answer +=
         splitLinks[i] +
-        ' ----- This link has been visited ' +
+        " ----- This link has been visited " +
         splitVisits[i].slice(7, splitVisits[i].length) +
-        ' time' +
+        " time" +
         s +
-        '\n'
+        "\n";
     }
-    this.setState({ links: answer })
+    this.setState({ links: answer });
   }
 
   render() {
-    const { value, code, error } = this.state
+    const { value, code, error } = this.state;
 
     return (
       <div id="centre">
@@ -156,8 +163,8 @@ class App extends React.Component {
           {this.state.links}
         </div>
       </div>
-    )
+    );
   }
 }
 
-export default App
+export default App;
