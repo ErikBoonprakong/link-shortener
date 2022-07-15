@@ -15,14 +15,13 @@ class App extends React.Component {
 
   async handleSubmit(event) {
     event.preventDefault();
+    console.log("submitting...");
     let isPrivate;
     if (event.target.id === "private") {
       isPrivate = true;
     }
 
     const url = `https://${this.state.value}`;
-    // const server = `https://link-shortener-server-erik.herokuapp.com`;
-    // const server = `http://localhost:8080`
 
     try {
       let response;
@@ -70,11 +69,6 @@ class App extends React.Component {
     return response;
   }
 
-  // shortcode() {
-  //   let shortcodeList = this.getShortcodes()
-  //   console.log(shortcodeList)
-  // }
-
   async getShortcodes() {
     const localResponse = await fetch(this.state.server + "/urls");
     const shortcodeList = await localResponse.json();
@@ -111,8 +105,8 @@ class App extends React.Component {
   }
 
   render() {
-    const { value, code, error } = this.state;
-
+    const { value, code, error, server } = this.state;
+    const link = `${server}/l/${code}`;
     return (
       <div id="centre">
         <h1>Very Good™️ Link Shortener Service</h1>
@@ -150,7 +144,11 @@ class App extends React.Component {
           <br />
           {code ? (
             <div className="alert alert-success" role="alert">
-              URL has been shortened! You can find it at localhost:8080/l/{code}
+              URL has been shortened! You can find it at{" "}
+              <a href={link}>
+                {server}/l/
+                {code}
+              </a>
             </div>
           ) : null}
           {error ? (
