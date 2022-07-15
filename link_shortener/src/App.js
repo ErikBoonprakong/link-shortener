@@ -5,7 +5,9 @@ class App extends React.Component {
   state = {
     success: undefined,
     links: "URL Links: ",
+    // local server:
     // server: "http://localhost:8080",
+    // deployed server
     server: "https://link-shortener-server-erik.herokuapp.com",
   };
 
